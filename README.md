@@ -63,7 +63,7 @@ Where possible, please also [submit a pull request](https://help.github.com/arti
 
 ## License
 
-This code repository is made available under the Apache 2.0 license. See the LICENSE file.
+This code repository is is licensed under the MIT-0 License. See the LICENSE file.
 
 
 ## VSCode Setup (Optional Setup)
