@@ -1,0 +1,133 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "This is the generic template",
+
+  "Parameters": {
+    "MemorySize": {
+      "Description": "The size of memory in MB for lambda function, in multiple of 64, minimum 128, maximum 3008.",
+      "Type": "Number",
+      "Default": "1984",
+      "MinValue": "128",
+      "MaxValue": "3008"
+    },
+    "Timeout": {
+      "Description": "The timeout for lambda function stop executing in seconds.",
+      "Type": "Number",
+      "Default": "900",
+      "MinValue": "1"
+    },
+    "Runtime": {
+      "Default": "python3.6",
+      "Description": "The environment runtime language.",
+      "Type": "String"
+    },
+    "LambdaBucket": {
+      "Description": "S3 bucket of the lambda function",
+      "Type": "String",
+      "Default": "ccs-sandbox-lambda-deploys"
+    },
+    "LambdaS3Object": {
+      "Description": "S3 Key for the lambda function",
+      "Type": "String",
+      "Default": "LexisAi/1947-LexisAi.zip"
+    },
+    "LambdaHandler": {
+      "Description": "Handler for the lambda function",
+      "Type": "String",
+      "Default": "ElasticLoader/lambda_function.lambda_handler"
+    },
+    "SecurityGroups": {
+        "Description": "Security Groups for the Lambda",
+        "Type": "CommaDelimitedList",
+        "Default": ""
+    },
+    "Description": {
+        "Default": "Generic lambda function template",
+        "Description": "The function description",
+        "Type": "String"
+    },
+    "Subnets": {
+        "Description": "Subnet Ids for the Lambda",
+        "Type": "CommaDelimitedList"
+    },
+    "CommonLambdaExecutionRoleARN": {
+      "Description": "The common lambda execution role ",
+      "Type": "String"
+    }
+  },
+
+
+  "Resources": {
+
+    "LambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "FunctionName": {},
+                "Description": {
+                  "Ref": "Description"
+                },
+                "Handler": {
+                  "Ref": "LambdaHandler"
+                },
+                "Role": {
+                    "Ref": "CommonLambdaExecutionRoleARN"
+                },
+                "Code": {
+                  "S3Bucket": {
+                    "Ref": "LambdaBucket"
+                  },
+                  "S3Key": {
+                    "Ref": "LambdaS3Object"
+                  }
+                },
+                "Timeout": {
+                  "Ref": "Timeout"
+                },
+                "MemorySize": {
+                  "Ref": "MemorySize"
+                },
+                "Runtime": {
+                  "Ref": "Runtime"
+                },
+                "VpcConfig": {
+                      "SecurityGroupIds" : {"Ref": "SecurityGroups"},
+                      "SubnetIds": {"Ref": "Subnets"}
+                },
+                "Environment": {
+                  "Variables": {
+
+                  }
+                },
+                "Tags": [
+                  {
+                    "Key": "AssetID",
+                    "Value": {
+                      "Ref": "AssetID"
+                    }
+                  },
+                  {
+                    "Key": "AssetName",
+                    "Value": {
+                      "Ref": "AssetName"
+                    }
+                  },
+                  {
+                    "Key": "AssetAreaName",
+                    "Value": {
+                      "Ref": "AssetAreaName"
+                    }
+                  },
+                  {
+                    "Key": "AssetGroup",
+                    "Value": {
+                      "Ref": "AssetGroup"
+                    }
+                  }
+                ]
+            }
+    }
+
+  }
+
+}

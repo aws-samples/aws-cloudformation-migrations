@@ -1,0 +1,6 @@
+{
+  "DEFAULT": {
+    "sourceDB": [ "simpleFunction" ],
+    "targetDB": "lambdaGeneral.template"
+  }
+}
