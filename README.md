@@ -41,7 +41,6 @@ The files below are included in this repository:
 
 After the CloudFormation templates have been deployed, the [Stack Resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/resources-section-structure.html) contain the information about the different resources that was deployed.
 
-![Stack-Resources](docs/stack-resources.png)
 
 ## Prerequisites
 1. Running python environment.
