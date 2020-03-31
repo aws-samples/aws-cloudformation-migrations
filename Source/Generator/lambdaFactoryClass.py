@@ -7,6 +7,15 @@ import collections
 tempDir = '../Temp/'
 infraPath = '../Templates/'
 
+import requests 
+
+def download_url(url, save_path, chunk_size=128):
+    r = requests.get(url, stream=True)
+    with open(save_path, 'wb') as fd:
+        print("writing to file" + save_path)
+        for chunk in r.iter_content(chunk_size=chunk_size):
+            fd.write(chunk)
+
 # Removes a legacy folder and files then creates it
 def createFolder(path):
 
@@ -68,9 +77,6 @@ def generateFunctionTemplate(fileToCopy, fileToSave, config):
     with open(infraPath + fileToSave + ".template", 'w') as outfile:
         json.dump(data, outfile, indent=4, sort_keys=True)
 
-def downloadFunction():
-    pass
-
 def readConfig():
 
     # Creating python destination directories
@@ -110,7 +116,7 @@ def cleanFunctionConfig(data):
     return data
 
 # Gets an array of function names and request the function deployment package and configuration
-def parseFunctions(functions, toGenerate):
+def parseFunctions(functions, toGenerate, client):
     global tempDir
 
     # Generate Lambda JSON, set into Temp folder
@@ -118,14 +124,17 @@ def parseFunctions(functions, toGenerate):
         functionName = function["FunctionName"]
         if any(functionName in s for s in toGenerate):
             print("Working on function: %s\n" % functionName)
-
+            #downloading lambda function zip to local temp directory
+            getcode = client.get_function(FunctionName=functionName)
+            download_url(getcode['Code']['Location'], tempDir+functionName+'.zip')
+            
 
             # Save function original parameters into the databaseName in Temp location
             with open( tempDir + functionName + '_SourceFunction', 'w' ) as outfile:
                 print("Writing: %s to a JSON file in Inputs\n" % functionName)
                 data = {'LAMBDA': function}
                 data = cleanFunctionConfig(data)
-                print(json.dumps(data, indent=4, sort_keys=True) + "\n")
+                #print(json.dumps(data, indent=4, sort_keys=True) + "\n")
                 json.dump(data, outfile, indent=4, sort_keys=True)
 
 
@@ -146,9 +155,7 @@ def getFunctions(client, toGenerate):
             data.extend(page['Functions'])
 
     data.extend(response["Functions"])
-    print(data)
-    print(toGenerate)
-    parseFunctions(data, toGenerate)
+    parseFunctions(data, toGenerate, client)
 
 def main():
     # Before running, check properties.ini, Insert wanted function names as list
@@ -170,13 +177,14 @@ def main():
                           aws_session_token=current_credentials.token
                           )
 
+    createFolder(tempDir)  # Clean Temp directory
     # Step 1, get the database config and files, parseFunction
     getFunctions(client, lambdatoGenerate)
 
 
     # Step 2, set the deployment folders and inject parameters to lambdaGeneral.template
     deployFunctions(lambdaSourceTemplate, lambdatoGenerate, config)
-    createFolder(tempDir)  # Clean Temp directory
+    
 
 # Entry point
 main()

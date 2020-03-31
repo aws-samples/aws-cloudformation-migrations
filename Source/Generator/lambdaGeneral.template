@@ -90,41 +90,13 @@
                 "Runtime": {
                   "Ref": "Runtime"
                 },
-                "VpcConfig": {
-                      "SecurityGroupIds" : {"Ref": "SecurityGroups"},
-                      "SubnetIds": {"Ref": "Subnets"}
-                },
+               
                 "Environment": {
                   "Variables": {
 
                   }
-                },
-                "Tags": [
-                  {
-                    "Key": "AssetID",
-                    "Value": {
-                      "Ref": "AssetID"
-                    }
-                  },
-                  {
-                    "Key": "AssetName",
-                    "Value": {
-                      "Ref": "AssetName"
-                    }
-                  },
-                  {
-                    "Key": "AssetAreaName",
-                    "Value": {
-                      "Ref": "AssetAreaName"
-                    }
-                  },
-                  {
-                    "Key": "AssetGroup",
-                    "Value": {
-                      "Ref": "AssetGroup"
-                    }
-                  }
-                ]
+                }
+              
             }
     }
 
