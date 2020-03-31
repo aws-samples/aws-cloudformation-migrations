@@ -1,6 +1,6 @@
 {
   "DEFAULT": {
-    "sourceDB": [ "simpleFunction" ],
+    "sourceDB": [ "copyme2" ],
     "targetDB": "lambdaGeneral.template"
   }
 }

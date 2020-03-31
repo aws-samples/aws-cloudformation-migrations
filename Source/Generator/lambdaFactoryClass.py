@@ -30,7 +30,7 @@ def generateFunctionTemplate(fileToCopy, fileToSave, config):
     functionName = os.path.splitext(fileToSave)[0]
     global tempDir
 
-    # Open the glueTablegeneral.template generic file
+    # Open the lambdaGeneral.template generic file
     with open(fileToCopy) as json_file:
         data = json.load(json_file)
 
@@ -52,7 +52,7 @@ def generateFunctionTemplate(fileToCopy, fileToSave, config):
                 for innerKey, innerValue in functionConfig["LAMBDA"]["Environment"]["Variables"].items():
                     data["Resources"]["LambdaFunction"]["Properties"]["Environment"]["Variables"][innerKey] = innerValue
         elif key == "FunctionName":
-            funcName = ("${AssetGroup}-${AssetName}-%s" % value)
+            funcName = ("%s" % value)
             data["Resources"]["LambdaFunction"]["Properties"]["FunctionName"]["Fn::Sub"] = funcName
         elif key == "MemorySize":
             data["Parameters"]["MemorySize"]["Default"] = str(value)
@@ -67,6 +67,9 @@ def generateFunctionTemplate(fileToCopy, fileToSave, config):
     # Save updated template to the destination file
     with open(infraPath + fileToSave + ".template", 'w') as outfile:
         json.dump(data, outfile, indent=4, sort_keys=True)
+
+def downloadFunction():
+    pass
 
 def readConfig():
 
@@ -84,7 +87,7 @@ def readConfig():
     print("Using this properties file: %s\n" % path)
 
     # Read JSON configurations file
-    with open(path + "/glueProperties.json") as f:
+    with open(path + "/lambdaProperties.json") as f:
         config = json.load(f)
 
     DBSourceTemplate = config["DEFAULT"]["targetDB"]
@@ -110,18 +113,19 @@ def cleanFunctionConfig(data):
 def parseFunctions(functions, toGenerate):
     global tempDir
 
-    # Generate Glue JSON, set into Temp folder
+    # Generate Lambda JSON, set into Temp folder
     for function in functions:
         functionName = function["FunctionName"]
         if any(functionName in s for s in toGenerate):
             print("Working on function: %s\n" % functionName)
+
 
             # Save function original parameters into the databaseName in Temp location
             with open( tempDir + functionName + '_SourceFunction', 'w' ) as outfile:
                 print("Writing: %s to a JSON file in Inputs\n" % functionName)
                 data = {'LAMBDA': function}
                 data = cleanFunctionConfig(data)
-                print (json.dumps(data, indent=4, sort_keys=True) + "\n")
+                print(json.dumps(data, indent=4, sort_keys=True) + "\n")
                 json.dump(data, outfile, indent=4, sort_keys=True)
 
 
@@ -142,26 +146,9 @@ def getFunctions(client, toGenerate):
             data.extend(page['Functions'])
 
     data.extend(response["Functions"])
-
+    print(data)
+    print(toGenerate)
     parseFunctions(data, toGenerate)
-
-def generateSchemaDict():
-    # Open the keys file and parse line by line, dump into json output file
-    data = []
-    counter = 0
-    with open("columns", "r") as file:
-        for line in file:
-            keyPair = line.replace(',', '').replace('`', '').strip().split(' ')
-            entry = collections.OrderedDict()
-            entry["Type"] = keyPair[1]
-            entry["Name"] = keyPair[0]
-            data.append(entry)
-    print("Found %d new entries\n" % len(data))
-
-    # Save resulted JSON to a file
-    with open("columns-output", 'w') as outfile:
-        # print json.dumps(data, indent=4, sort_keys=True) + "\n"
-        json.dump(data, outfile, indent=4, sort_keys=True)
 
 def main():
     # Before running, check properties.ini, Insert wanted function names as list
@@ -183,7 +170,7 @@ def main():
                           aws_session_token=current_credentials.token
                           )
 
-    # Step 1, get the database config and files
+    # Step 1, get the database config and files, parseFunction
     getFunctions(client, lambdatoGenerate)
 
 
@@ -193,4 +180,3 @@ def main():
 
 # Entry point
 main()
-# generateSchemaDict()
