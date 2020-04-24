@@ -96,8 +96,8 @@ def readConfig():
     with open(path + "/lambdaProperties.json") as f:
         config = json.load(f)
 
-    DBSourceTemplate = config["DEFAULT"]["targetDB"]
-    DBtoGenerate = config["DEFAULT"]["sourceDB"]
+    DBSourceTemplate = config["DEFAULT"]["targetFunction"]
+    DBtoGenerate = config["DEFAULT"]["sourceFunction"]
 
     return config, DBSourceTemplate, DBtoGenerate
 
